@@ -1,13 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
-
-#include <stdio.h>
-#include <Windows.h>
-#include <stdint.h>
-
-#define BLOCK_SIZE 4 // also BLOCK_SIZE= size of key
-#define d 4 // number of rounds
-const uint8_t S[16]         = { 10, 0, 9, 14, 6, 3, 15, 5, 1, 13, 12, 7, 11, 4, 2, 8 };
-const uint8_t S_reverse[16] = { 1, 8, 14, 5, 13, 7, 4, 11, 15, 2, 0, 12, 10, 9, 3, 6 };
+#include "Header.h"
 
 int readText(uint8_t** pBuf, const char* pFileName)
 {
@@ -96,11 +87,23 @@ void encryptBlock(uint8_t* Y, const uint8_t* X, const uint8_t* key)
         // 3. Permutation
         P_block(Y, P_func);
     }
+    // 4. whitening
+    for (int i = 0; i < BLOCK_SIZE; i++)
+    {
+        Y[i] ^= key[i];
+    }
+
 }
 
 void decryptBlock(const uint8_t* Y, uint8_t* X, const uint8_t* key)
 {
     memcpy(X, Y, BLOCK_SIZE);
+
+    // 0. whitening
+    for (int i = 0; i < BLOCK_SIZE; i++)
+    {
+        X[i] ^= key[i];
+    }
 
     for (int j = 0; j < d; j++)
     {
@@ -184,15 +187,16 @@ void D(const uint8_t* cyphertext, uint8_t* plaintext, const uint8_t* key, int le
 
 }
 
+#ifndef KEY_SEARCH
 int main(int argc, char* argv[])
 {
-    uint8_t* plaintext          = NULL;
-    uint8_t* key                = NULL;
-    uint8_t* cyphertext         = NULL;
+    uint8_t* plaintext = NULL;
+    uint8_t* key = NULL;
+    uint8_t* cyphertext = NULL;
     uint8_t* plaintextDecrypted = NULL;
-    int      iPlainLen          = 0;
-    int      iKeyLen            = 0;
-    FILE*    rezFile            = NULL;
+    int      iPlainLen = 0;
+    int      iKeyLen = 0;
+    FILE* rezFile = NULL;
 
     iPlainLen = readText(&plaintext, argv[1]);
     if (iPlainLen < BLOCK_SIZE)
@@ -207,12 +211,17 @@ int main(int argc, char* argv[])
         printf("error\n");
         return -1;
     }
-    cyphertext         = (uint8_t*)calloc(iPlainLen, sizeof(uint8_t));
+    cyphertext = (uint8_t*)calloc(iPlainLen, sizeof(uint8_t));
     plaintextDecrypted = (uint8_t*)calloc(iPlainLen, sizeof(uint8_t)); // проверить длину
 
     ///
-    E(cyphertext, plaintext,          key, iPlainLen);
-    D(cyphertext, plaintextDecrypted, key, iPlainLen);
+    E(cyphertext, plaintext, key, iPlainLen);
+    //D(cyphertext, plaintextDecrypted, key, iPlainLen);
+
+    uint32_t keyWrong = 0x12345678;
+    D(cyphertext, plaintextDecrypted, (uint8_t*)&keyWrong, iPlainLen);
+
+
 
     ///
 
@@ -232,3 +241,4 @@ int main(int argc, char* argv[])
     system("pause");
     return 0;
 }
+#endif // !KEY_SEARCH
