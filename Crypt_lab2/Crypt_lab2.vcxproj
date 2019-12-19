@@ -125,7 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Source1.cpp" />
+    <ClCompile Include="Source_lab4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h" />
