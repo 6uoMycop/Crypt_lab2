@@ -6,16 +6,16 @@
 std::mutex mutStdout;
 
 const uint32_t key[4] = {
-    0x47fad3d6,
-    0xbed68245,
-    0x088114c0,
-    0xff7398d4
+    0x43438a5b,
+    0x4cdc1e74,
+    0xb27fdd43,
+    0xce8aa851
 };
 const uint32_t X[4] = {
-    0x7fea2b9d,
-    0x4351f16e,
-    0xd9ad8629,
-    0x35bc076a
+    0xcae25f86,
+    0xd5f7c38e,
+    0x61f937ea,
+    0x62000cd2
 };
 
 void worker(uint32_t threadNumber, clock_t start)
